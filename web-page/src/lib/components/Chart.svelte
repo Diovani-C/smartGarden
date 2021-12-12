@@ -26,7 +26,7 @@
 		Decimation
 	);
 	import 'chartjs-adapter-date-fns';
-	import { afterUpdate, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 
 	export let title: string;
 	export let min: number;
@@ -43,9 +43,17 @@
 	};
 
 	Chart.defaults.color = colors.textColor;
+	let dataChart: Chart<
+		'line',
+		{
+			x: number;
+			y: number;
+		}[],
+		unknown
+	>;
 
-	afterUpdate(() => {
-		const myChart = new Chart(canvas, {
+	onMount(() => {
+		dataChart = new Chart(canvas, {
 			type: 'line',
 
 			data: {
@@ -106,9 +114,13 @@
 				}
 			}
 		});
-
-		myChart.render();
+		dataChart.render();
 	});
+
+	$: if (dataChart) {
+		dataChart.data.datasets = datasets;
+		dataChart.update();
+	}
 </script>
 
 <canvas height="500" width="1000" bind:this={canvas} />

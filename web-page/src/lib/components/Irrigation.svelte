@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { minimum2IntegerDigits } from '$lib/utilities';
+
 	let irrigationEndTime: number = 0;
 	let Irrigating = false;
 	let countDownText: string = '';
@@ -18,8 +20,8 @@
 
 			const date = new Date(countDown);
 
-			const seconds = minimumIntegerDigits(date.getSeconds());
-			const minutes = minimumIntegerDigits(date.getMinutes());
+			const seconds = minimum2IntegerDigits(date.getSeconds());
+			const minutes = minimum2IntegerDigits(date.getMinutes());
 
 			countDownText = `Irrigando: ${minutes}:${seconds}`;
 
@@ -35,13 +37,6 @@
 		if (response.ok) {
 			irrigationEndTime = Date.now();
 		}
-	}
-
-	function minimumIntegerDigits(number: number): string {
-		return number.toLocaleString('en-US', {
-			minimumIntegerDigits: 2,
-			useGrouping: false
-		});
 	}
 </script>
 

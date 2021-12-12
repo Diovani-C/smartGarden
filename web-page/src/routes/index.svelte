@@ -2,7 +2,8 @@
 	import Chart from '$lib/components/Chart.svelte';
 	import Irrigation from '$lib/components/Irrigation.svelte';
 	import TimePicker from '$lib/components/TimePicker.svelte';
-	import { parseCSV, fillTheLastXValue } from '$lib/utilities';
+	import { parseCSV, filterDatasetsByDate, alignXAxisBegginingEnd } from '$lib/utilities';
+	import State from '$lib/state';
 	import { onMount } from 'svelte';
 
 	const sensorsDecoration = [
@@ -12,13 +13,18 @@
 	];
 
 	let datasets: Dataset[] = [];
-	let minDate = '';
-	let maxDate = '';
+	let filteredDatasets: Dataset[] = [];
+	let filteredAlignedDatasets: Dataset[] = [];
+	let minDate: number;
+	let maxDate: number;
+
+	$: filteredDatasets = filterDatasetsByDate(datasets, $State.get('from'), $State.get('to'));
+	$: filteredAlignedDatasets = alignXAxisBegginingEnd(filteredDatasets);
 
 	onMount(async () => {
-		const csv = await fetch('/sensorData.csv');
-		if (csv.ok) {
-			const parsedSensorData = fillTheLastXValue(parseCSV(await csv.text()));
+		try {
+			const csv = await fetch('/sensorData.csv');
+			const parsedSensorData = parseCSV(await csv.text());
 
 			const updatedDatasets: Dataset[] = [];
 
@@ -33,25 +39,19 @@
 			}
 
 			datasets = updatedDatasets;
-			minDate = getDate(datasets[0].data[0].x);
-			maxDate = getDate(datasets[0].data[datasets[0].data.length - 1].x);
-		} else {
-			alert('Could not fetch csv file');
+			minDate = datasets[0].data[0].x;
+			maxDate = datasets[0].data[datasets[0].data.length - 1].x;
+		} catch (err) {
+			console.error(err);
+			alert("Can't access sensor data file!");
 		}
 	});
-
-	function getDate(utc: number): string {
-		const utcDate = new Date(utc);
-		return `${utcDate.getFullYear()}-${utcDate.getMonth() + 1}-${utcDate.getDate()}`;
-	}
 </script>
 
 <div>
-	{#if datasets.length > 0}
-		<Chart title="Horta Inteligente" {datasets} min={-10} max={100} />
-	{/if}
+	<Chart title="Horta Inteligente" datasets={filteredAlignedDatasets} min={-10} max={100} />
 </div>
-<TimePicker min={minDate} max={maxDate} />
+<TimePicker {minDate} {maxDate} />
 <Irrigation />
 
 <style>

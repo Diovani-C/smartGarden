@@ -34,30 +34,43 @@ export function parseCSV(csv: string): SensorData[] {
 	return dataSets;
 }
 
-export function fillTheLastXValue(sensorsData: SensorData[]): SensorData[] {
-	let biggerXValue = 0;
+export function alignXAxisBegginingEnd(datasets: Dataset[]): Dataset[] {
+	let biggestXValue = 0;
+	let smallestXValue = Number.MAX_VALUE;
 
-	// Find the biggest X value
-	for (let i = 0; i < sensorsData.length; i++) {
-		const lastDataObject = sensorsData[i].data[sensorsData[i].data.length - 1];
-		if (lastDataObject.x > biggerXValue) {
-			biggerXValue = lastDataObject.x;
+	// Find the biggest and smallest X value
+	for (let i = 0; i < datasets.length; i++) {
+		const dataArray = datasets[i].data;
+		const firstXValue = dataArray[0].x;
+		const lastXValue = dataArray[dataArray.length - 1].x;
+
+		if (firstXValue < smallestXValue) {
+			smallestXValue = firstXValue;
+		}
+		if (lastXValue > biggestXValue) {
+			biggestXValue = lastXValue;
 		}
 	}
 
-	// Push new values to fill the x end gap
-	for (let i = 0; i < sensorsData.length; i++) {
-		const lastDataObject = sensorsData[i].data[sensorsData[i].data.length - 1];
-		if (biggerXValue > lastDataObject.x) {
-			sensorsData[i].data.push({ y: lastDataObject.y, x: biggerXValue });
+	// change the first and the last X value to aling the beggining and end of the arrays
+	for (let i = 0; i < datasets.length; i++) {
+		const dataArray = datasets[i].data;
+		const firstDataObject = dataArray[0];
+		const lastDataObject = dataArray[dataArray.length - 1];
+
+		if (smallestXValue < firstDataObject.x) {
+			firstDataObject.x = smallestXValue;
+		}
+		if (biggestXValue > lastDataObject.x) {
+			lastDataObject.x = biggestXValue;
 		}
 	}
 
-	return sensorsData;
+	return datasets;
 }
 
 export function filterDatasetsByDate(datasets: Dataset[], from: string, to: string): Dataset[] {
-	if (!from || !to) {
+	if (!from || !to || from.includes('NaN') || to.includes('NaN')) {
 		return datasets;
 	}
 
@@ -67,8 +80,19 @@ export function filterDatasetsByDate(datasets: Dataset[], from: string, to: stri
 	const numberSplitedFrom = splitedFrom.map(Number);
 	const numberSplitedTo = splitedTo.map(Number);
 
-	const fromDate = Date.UTC(numberSplitedFrom[0], numberSplitedFrom[1], numberSplitedFrom[3]);
-	const toDate = Date.UTC(numberSplitedTo[0], numberSplitedTo[1], numberSplitedTo[2]);
+	const fromDate = new Date(
+		numberSplitedFrom[0],
+		numberSplitedFrom[1] - 1,
+		numberSplitedFrom[2]
+	).getTime();
+	const toDate = new Date(
+		numberSplitedTo[0],
+		numberSplitedTo[1] - 1,
+		numberSplitedTo[2],
+		23,
+		59,
+		59
+	).getTime();
 
 	const filteredDatasets: Dataset[] = [];
 
@@ -90,4 +114,11 @@ export function filterDatasetsByDate(datasets: Dataset[], from: string, to: stri
 		});
 	}
 	return filteredDatasets;
+}
+
+export function minimum2IntegerDigits(number: number): string {
+	return number.toLocaleString('en-US', {
+		minimumIntegerDigits: 2,
+		useGrouping: false
+	});
 }

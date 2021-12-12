@@ -12,6 +12,7 @@
 	<meta name="theme-color" content="#191a19" />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="mobile-web-app-capable" content="yes" />
+	<meta name="description" content="Interface da Horta Inteligente" />
 	<link rel="stylesheet" href={globalCss} />
 	<title>Horta Inteligente</title>
 </svelte:head>

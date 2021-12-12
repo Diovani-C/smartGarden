@@ -2,7 +2,6 @@
 #include <WiFiClient.h>
 #include <WiFi.h>
 #include <WiFiMulti.h>
-// #include <ESPmDNS.h>
 #include <WebServer.h>
 #include <ESPAsyncWebServer.h>
 #include <AsyncTCP.h>
@@ -50,13 +49,12 @@ const char *ntpServer = "pool.ntp.org";  // ntp url
 const long gmtOffset_sec = 60 * 60 * -3; // -3 hours
 
 // Irrigation time
-const uint8_t morningIrrigationHour = 11;           // Hour to verify irrigate in the morning 0 - 12
-const uint8_t eveningIrrigationHour = 17;           // Hour to verify irrigate in the evening 12 - 23
-uint8_t nextIrrigationHour = morningIrrigationHour; // The next hour to verify the irrigation
-time_t irrigationEndTime = 0;                       // Time to end the irrigation UNIX epoch
-const uint16_t irrigationDurationPerPercent = 5;    // Seconds to multiply by missing %humidity
-const float dryValue = 3100.0;                      // the value when sensor placed in air
-const float waterValue = 2700.0;                    // the value when sensor placed in water
+const uint8_t morningIrrigationHour = 11;        // Hour to verify irrigate in the morning 0 - 12
+const uint8_t eveningIrrigationHour = 17;        // Hour to verify irrigate in the evening 12 - 23
+time_t irrigationEndTime = 0;                    // Time to end the irrigation UNIX epoch
+const uint16_t irrigationDurationPerPercent = 5; // Seconds to multiply by missing %humidity
+const float dryValue = 3100.0;                   // the value when sensor placed in the air
+const float waterValue = 2700.0;                 // the value when sensor placed in water
 float soilReading;
 
 //  Time variables
@@ -78,7 +76,6 @@ void startSensors();
 void startNTP();
 void startWebServer();
 void startFileSystem();
-// void startMDNS();
 void irrigate();
 void logDataToFile(String &data);
 
@@ -93,7 +90,6 @@ void setup()
   // Initialize all the services
   startWifiConnection();
   startFileSystem();
-  // startMDNS();
   startNTP();
   startSensors();
   startWebServer();
@@ -141,16 +137,12 @@ void loop()
   }
 
   // Verify if it needs irrigation when the irrigation hour comes
-  if (currentLocalTime->tm_hour == nextIrrigationHour)
+  if (currentLocalTime->tm_hour == morningIrrigationHour || currentLocalTime->tm_hour == eveningIrrigationHour)
   {
     if (getSensorValue(soilHumidity) <= 80.0)
       irrigate();
 
     configTime(gmtOffset_sec, 0, ntpServer);
-    if (nextIrrigationHour == morningIrrigationHour)
-      nextIrrigationHour = eveningIrrigationHour;
-    else
-      nextIrrigationHour = morningIrrigationHour;
   }
 
   // Verify if the irrigation ended
@@ -168,8 +160,7 @@ void startWifiConnection()
   WiFi.mode(WIFI_STA); // Change wifi mode to station
   WiFi.disconnect();   // Clear wifi config
                        // Configures static IP address
-  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
-    throwError(5, ACTION_LED, ON_LED);
+  WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS);
 
   wifiMulti.addAP(ssid, password);
   uint8_t wifiCount = 0;
@@ -182,21 +173,11 @@ void startWifiConnection()
       ESP.restart();
   }
 }
-
-// void startMDNS()
-// {
-//   if (!MDNS.begin(url))
-//   {
-//     throwError(5, ACTION_LED, ON_LED);
-//   }
-//   MDNS.addService("http", "tcp", 80);
-// }
-
 void startFileSystem()
 {
   if (!SPIFFS.begin(true))
   {
-    throwError(3, ACTION_LED, ON_LED);
+    ESP.restart();
   }
 }
 

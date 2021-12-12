@@ -1,33 +1,5 @@
 #include "utilities.hpp"
 
-void throwError(uint8_t errorCode, uint8_t actionLed, uint8_t onLed)
-{
-  for (uint8_t i = 0; i < errorCode; i++)
-  {
-    digitalWrite(actionLed, LOW);
-    digitalWrite(onLed, LOW);
-    delay(1000);
-    digitalWrite(actionLed, HIGH);
-    digitalWrite(onLed, HIGH);
-    delay(1000);
-  }
-
-  delay(3000);
-
-  for (uint8_t i = 0; i < errorCode; i++)
-  {
-    digitalWrite(actionLed, LOW);
-    digitalWrite(onLed, LOW);
-    delay(1000);
-    digitalWrite(actionLed, HIGH);
-    digitalWrite(onLed, HIGH);
-    delay(1000);
-  }
-
-  delay(1000);
-  ESP.restart();
-}
-
 void blinkActionLed(uint8_t actionLed)
 {
   if (digitalRead(actionLed) == LOW)
