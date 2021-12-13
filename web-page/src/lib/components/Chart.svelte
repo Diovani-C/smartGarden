@@ -11,7 +11,7 @@
 		Tooltip,
 		PointElement,
 		Decimation
-	} from 'chart.js';
+	} from 'chart.js/dist/chart.esm';
 
 	Chart.register(
 		LineElement,
@@ -43,7 +43,7 @@
 	};
 
 	Chart.defaults.color = colors.textColor;
-	let dataChart: Chart<
+	let chart: Chart<
 		'line',
 		{
 			x: number;
@@ -53,7 +53,7 @@
 	>;
 
 	onMount(() => {
-		dataChart = new Chart(canvas, {
+		chart = new Chart(canvas, {
 			type: 'line',
 
 			data: {
@@ -114,12 +114,12 @@
 				}
 			}
 		});
-		dataChart.render();
+		chart.render();
 	});
 
-	$: if (dataChart) {
-		dataChart.data.datasets = datasets;
-		dataChart.update();
+	$: if (chart) {
+		chart.data.datasets = datasets;
+		chart.update();
 	}
 </script>
 

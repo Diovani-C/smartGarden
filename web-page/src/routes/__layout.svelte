@@ -1,5 +1,5 @@
 <script lang="ts">
-	import globalCss from '../global.css';
+	import '../global.css';
 </script>
 
 <svelte:head>
@@ -13,7 +13,6 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="mobile-web-app-capable" content="yes" />
 	<meta name="description" content="Interface da Horta Inteligente" />
-	<link rel="stylesheet" href={globalCss} />
 	<title>Horta Inteligente</title>
 </svelte:head>
 <main>
@@ -34,5 +33,10 @@
 		text-align: center;
 		padding: 20px;
 		padding-top: 0;
+	}
+	@media only screen and (max-width: 768px) {
+		main {
+			padding: 10px;
+		}
 	}
 </style>

@@ -9,6 +9,8 @@
 
 	$: min = valueToDateInput(minDate);
 	$: max = valueToDateInput(maxDate);
+	$: maxFrom = to;
+	$: minTo = from;
 
 	const week = 60 * 60 * 24 * 7 * 1000;
 
@@ -35,11 +37,11 @@
 <div class="time-picker-grid">
 	<div class="from">
 		<label for="from">De:</label>
-		<input type="date" id="from" bind:value={from} {min} {max} />
+		<input type="date" id="from" bind:value={from} {min} max={maxFrom} />
 	</div>
 	<div class="to">
 		<label for="to">Até:</label>
-		<input type="date" id="to" bind:value={to} {min} {max} />
+		<input type="date" id="to" bind:value={to} min={minTo} {max} />
 	</div>
 </div>
 
