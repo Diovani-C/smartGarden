@@ -31,12 +31,11 @@
 		width: 100%;
 		height: 100%;
 		text-align: center;
-		padding: 20px;
-		padding-top: 0;
+		padding: 0 20px;
 	}
 	@media only screen and (max-width: 768px) {
 		main {
-			padding: 10px;
+			padding: 0 10px;
 		}
 	}
 </style>

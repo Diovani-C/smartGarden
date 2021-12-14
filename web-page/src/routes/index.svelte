@@ -49,7 +49,7 @@
 </script>
 
 <div>
-	<Chart title="Horta Inteligente" datasets={filteredAlignedDatasets} min={-10} max={100} />
+	<Chart title="Horta Inteligente" datasets={filteredAlignedDatasets} min={-5} max={100} />
 </div>
 <TimePicker {minDate} {maxDate} />
 <Irrigation />

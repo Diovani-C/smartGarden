@@ -12,6 +12,7 @@
 #include "sensor.hpp"
 #include "filesystem.hpp"
 #include "utilities.hpp"
+#include "server.hpp"
 
 #define CAPACITIVE_SOIL_SENSOR 34
 #define DHT11_PIN 27
@@ -30,8 +31,8 @@ const char *ssid = "SubSolo";      // Wifi name
 const char *password = "cocacola"; // Wifi password
 
 // WAN Acess
-const char *username = "admin";
-const char *serverPass = "ADM88088$horta";
+String username = "admin";
+String serverPass = "ADM88088$horta";
 
 // Set your Static IP address
 IPAddress local_IP(10, 0, 0, 50);
@@ -176,33 +177,39 @@ void startWifiConnection()
 void startFileSystem()
 {
   if (!SPIFFS.begin(true))
-  {
     ESP.restart();
-  }
 }
 
 void startWebServer()
 {
-  // Server the static files
-  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setAuthentication(username, serverPass);
-  server.serveStatic(logFileName, SPIFFS, logFileName).setCacheControl("max-age=60"); // For the sensor log file keep in cache for only 60 seconds
-
   server.on("/irrigate", [](AsyncWebServerRequest *request)
             {
+              if(verifyLogin(request)){
               irrigate();
               String jsonResponse = "{\"irrigationEndTime\":";
               jsonResponse += String(irrigationEndTime);
               jsonResponse += "}";
-              request->send(200, "application/json", jsonResponse); });
+              request->send(200, "application/json", jsonResponse);
+              }
+              else
+              {
+                request->send(401, "text/plain", "Unauthorized");
+              } });
 
   server.on("/stopIrrigation", [](AsyncWebServerRequest *request)
             {
+              if(verifyLogin(request)){
               irrigationEndTime = currentTime;
 
-              request->send(200, "text/plain", "ok"); });
+              request->send(200, "text/plain", "ok"); 
+              }
+              else
+              {
+                request->send(401, "text/plain", "Unauthorized");
+              } });
 
-  server.onNotFound([](AsyncWebServerRequest *request)
-                    { request->send(404, "text/plain", "FileNotFound"); });
+  serveStaticFiles(SPIFFS, server, username, serverPass);
+
   server.begin();
 }
 

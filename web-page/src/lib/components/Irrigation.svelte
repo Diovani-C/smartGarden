@@ -52,22 +52,6 @@
 </div>
 
 <style>
-	button {
-		height: 32px;
-		width: 112px;
-		border-radius: 4px;
-	}
-	button:active {
-		color: var(--primary-color-1);
-		background: #d8e9a8;
-		border: inset 2px #d8e9a8;
-	}
-	button:disabled {
-		background: var(--secondary-color);
-		color: var(--text-color);
-		border: solid 2px var(--secondary-color);
-	}
-
 	div {
 		display: grid;
 		gap: 4px;
